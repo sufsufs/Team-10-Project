@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Content</title>
+    <style>
+        /* Basic styling similar to the existing ChangeSettings style */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .report-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Report Inappropriate Content</h2>
+        <form id="reportForm" class="report-form">
+            <div class="form-group">
+                <label for="category">Category:</label>
+                <select id="category" name="category" required>
+                    <option value="">Select a category</option>
+                    <option value="spam">Spam</option>
+                    <option value="harassment">Harassment</option>
+                    <option value="misinformation">Misinformation</option>
+                    <option value="violence">Violence</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="details">Additional Details:</label>
+                <textarea id="details" name="details" rows="4" placeholder="Please provide more details about your report..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button type="button" class="cancel-btn" onclick="closeReportForm()">Cancel</button>
+                <button type="submit" class="submit-btn">Submit Report</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Function to handle form submission
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('category').value;
+            const details = document.getElementById('details').value;
+            
+            try {
+                const response = await submitReport({
+                    category,
+                    details,
+                    contentId: getContentIdFromUrl(), // Helper function to get content ID
+                    timestamp: new Date().toISOString()
+                });
+                
+                if (response.success) {
+                    alert('Report submitted successfully');
+                    closeReportForm();
+                }
+            } catch (error) {
+                console.error('Error submitting report:', error);
+                alert('Failed to submit report. Please try again.');
+            }
+        });
+
+        // Helper function to close the report form
+        function closeReportForm() {
+            // Implementation depends on how the form is opened
+            // Could be window.close() for popup or hiding a modal
+            window.close();
+        }
+
+        // Helper function to get content ID from URL
+        function getContentIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('contentId');
+        }
+
+        // Function to submit the report to backend
+        async function submitReport(reportData) {
+            const response = await fetch('/api/reports', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(reportData)
+            });
+            
+            return response.json();
+        }
+    </script>
+</body>
+</html>
