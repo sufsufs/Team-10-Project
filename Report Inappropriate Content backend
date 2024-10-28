@@ -1,0 +1,94 @@
+from flask import Flask, request, jsonify
+from datetime import datetime
+import sqlite3
+import json
+
+app = Flask(__name__)
+
+# Database initialization
+def init_db():
+    """Initialize the SQLite database with required tables"""
+    conn = sqlite3.connect('reports.db')
+    c = conn.cursor()
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            content_id TEXT NOT NULL,
+            category TEXT NOT NULL,
+            details TEXT,
+            reporter_id TEXT NOT NULL,
+            status TEXT DEFAULT 'pending',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+# Route to handle report submission
+@app.route('/api/reports', methods=['POST'])
+def submit_report():
+    """Handle the submission of a new content report"""
+    try:
+        data = request.json
+        
+        # Validate required fields
+        required_fields = ['contentId', 'category']
+        if not all(field in data for field in required_fields):
+            return jsonify({'error': 'Missing required fields'}), 400
+            
+        # Get reporter ID from session (implementation depends on your auth system)
+        reporter_id = get_reporter_id()
+        
+        # Check if content was already reported by this user
+        if check_existing_report(data['contentId'], reporter_id):
+            return jsonify({'error': 'Content already reported'}), 409
+            
+        # Store report in database
+        store_report(data, reporter_id)
+        
+        return jsonify({'success': True, 'message': 'Report submitted successfully'}), 201
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def check_existing_report(content_id, reporter_id):
+    """Check if the user has already reported this content"""
+    conn = sqlite3.connect('reports.db')
+    c = conn.cursor()
+    c.execute('''
+        SELECT id FROM reports 
+        WHERE content_id = ? AND reporter_id = ?
+    ''', (content_id, reporter_id))
+    result = c.fetchone()
+    conn.close()
+    return result is not None
+
+def store_report(data, reporter_id):
+    """Store the report in the database"""
+    conn = sqlite3.connect('reports.db')
+    c = conn.cursor()
+    c.execute('''
+        INSERT INTO reports (content_id, category, details, reporter_id)
+        VALUES (?, ?, ?, ?)
+    ''', (
+        data['contentId'],
+        data['category'],
+        data.get('details', ''),
+        reporter_id
+    ))
+    conn.commit()
+    conn.close()
+
+def get_reporter_id():
+    """Get the current user's ID from the session"""
+    # Implementation depends on your authentication system
+    # This is a placeholder
+    return request.headers.get('X-User-Id', 'anonymous')
+
+# Initialize database when the application starts
+with app.app_context():
+    init_db()
+
+if __name__ == '__main__':
+    app.run(debug=True)
