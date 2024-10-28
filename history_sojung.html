@@ -1,0 +1,251 @@
+<!-- Sojung Shin (sxs230359) -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Feed - Viewing History</title>
+    <style>
+        /* General styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+
+        /* Menu Bar */
+        .menu-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            position: relative;
+            text-align: center;
+        }
+
+        .menu-bar h1 {
+            font-size: 2.5rem;
+            margin: 0;
+            color: white;
+        }
+
+        .profile-button {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+
+        .profile-button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        /* Dropdown menu styling */
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 1; /* Ensure dropdown is on top */
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            width: 80%;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styling for form elements */
+        .history-actions {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .history-actions input, .history-actions button {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .clear-history-btn {
+            background-color: #e74c3c;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .clear-history-btn:hover {
+            background-color: #c0392b;
+        }
+
+        /* Styling for history list */
+        .history-list {
+            margin-top: 20px;
+        }
+
+        .history-item {
+            padding: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .history-item h3 {
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+            color: #2c3e50;
+        }
+
+        .history-item p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <h1>Flash Feed</h1>
+
+        <button class="profile-button" onclick="toggleDropdown()">
+            <img src="profile_icon.png" alt="Profile Icon">
+        </button>
+        
+        <!-- Dropdown Menu -->
+        <div class="dropdown" id="dropdown-menu">
+            <a href="#">Profile</a>
+            <a href="request_sojung.html">Request News</a>
+            <a href="history_sojung.html">Manage History</a>
+            <a href="#">Login/Logout</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <h1>Viewing History</h1>
+
+        <!-- Actions for Search and Clear -->
+        <div class="history-actions">
+            <input type="text" id="search-keyword" placeholder="Search history by keyword">
+            <button onclick="clearHistory()" class="clear-history-btn">Clear History</button>
+        </div>
+
+        <!-- History List -->
+        <div class="history-list" id="history-list">
+            <!-- History items will appear here -->
+        </div>
+    </div>
+
+    <script>
+        // Sample history data for demonstration
+        const sampleHistory = [
+            { title: "Tech Update", keyword: "computer", category: "technology", date: "2024-10-01" },
+            { title: "Business Insights", keyword: "market", category: "business", date: "2024-10-10" },
+            { title: "Sports Highlights", keyword: "football", category: "sports", date: "2024-09-15" },
+            // Add more sample entries as needed
+        ];
+
+        // Display history data
+        function displayHistory(historyData) {
+            const historyList = document.getElementById('history-list');
+            historyList.innerHTML = "";
+
+            if (historyData.length > 0) {
+                historyData.forEach(item => {
+                    const historyItem = document.createElement('div');
+                    historyItem.classList.add('history-item');
+                    historyItem.innerHTML = `
+                        <h3>${item.title}</h3>
+                        <p><strong>Keyword:</strong> ${item.keyword}</p>
+                        <p><strong>Category:</strong> ${item.category}</p>
+                        <p><strong>Date:</strong> ${item.date}</p>
+                    `;
+                    historyList.appendChild(historyItem);
+                });
+            } else {
+                historyList.innerHTML = "<p>No history available.</p>";
+            }
+        }
+
+        // Initialize history display with sample data
+        let historyData = [...sampleHistory];
+        displayHistory(historyData);
+
+        // Clear History with confirmation
+        function clearHistory() {
+            if (confirm("Are you sure you want to clear all history?")) {
+                historyData = []; // Clear history array
+                displayHistory(historyData); // Update display
+                alert("History has been cleared.");
+            }
+        }
+
+        // Search history by keyword
+        document.getElementById('search-keyword').addEventListener('input', function() {
+            const keyword = this.value.toLowerCase();
+            const filteredHistory = historyData.filter(item => 
+                item.keyword.toLowerCase().includes(keyword) ||
+                item.title.toLowerCase().includes(keyword)
+            );
+            displayHistory(filteredHistory);
+        });
+
+        // Test cases based on provided scenarios
+        // Test Case 1: Display full history when available
+        function testViewHistoryWithValidData() {
+            historyData = [...sampleHistory];
+            displayHistory(historyData);
+        }
+
+        // Test Case 2: Display no history when no data is present
+        function testViewHistoryWithNoData() {
+            historyData = [];
+            displayHistory(historyData);
+        }
+        
+        // Initialize tests
+        testViewHistoryWithValidData();
+
+        // Dropdown functionality
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Hide dropdown when clicking outside
+        document.addEventListener('click', function(event) {
+            const profileButton = document.querySelector('.profile-button');
+            const dropdown = document.getElementById('dropdown-menu');
+            if (!profileButton.contains(event.target) && !dropdown.contains(event.target)) {
+                dropdown.style.display = 'none'; // Hide dropdown if clicked outside
+            }
+        });
+    </script>
+
+</body>
+</html>
