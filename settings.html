@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<!-- Written by Heather Stephens -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Profile Settings</title>
+    <style>
+        /* Basic styling for the body */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        /* Styling for the container div */
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Styling for the heading */
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        /* Styling for the form */
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Styling for the labels */
+        label {
+            margin-bottom: 5px;
+        }
+
+        /* Styling for the input fields */
+        input {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        /* Styling for the submit button */
+        button {
+            padding: 10px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        /* Styling for the submit button on hover */
+        button:hover {
+            background-color: #218838;
+        }
+
+        /* Styling for the error messages */
+        .error {
+            color: red;
+            margin-bottom: 15px;
+        }
+
+        /* Hide input fields initially */
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 id="title">Profile Settings</h1>
+        <form id="profileForm">
+            <!-- Container for error messages -->
+            <div id="errorContainer" class="error"></div>
+
+            <!-- Checkboxes to select which settings to change -->
+            <label><input type="checkbox" id="changeUsername"> Change Username</label>
+            <label><input type="checkbox" id="changeEmail"> Change Email</label>
+            <label><input type="checkbox" id="changePassword"> Change Password</label>
+
+            <!-- Old Username input field -->
+            <div id="oldUsernameDiv" class="hidden">
+                <label for="oldUsername" id="oldUsernameLabel">Old Username:</label>
+                <input type="text" id="oldUsername" name="oldUsername">
+            </div>
+
+            <!-- New Username input field -->
+            <div id="newUsernameDiv" class="hidden">
+                <label for="newUsername" id="newUsernameLabel">New Username:</label>
+                <input type="text" id="newUsername" name="newUsername">
+            </div>
+
+            <!-- Old Email input field -->
+            <div id="oldEmailDiv" class="hidden">
+                <label for="oldEmail" id="oldEmailLabel">Old Email:</label>
+                <input type="email" id="oldEmail" name="oldEmail">
+            </div>
+
+            <!-- New Email input field -->
+            <div id="newEmailDiv" class="hidden">
+                <label for="newEmail" id="newEmailLabel">New Email:</label>
+                <input type="email" id="newEmail" name="newEmail">
+            </div>
+
+            <!-- Old Password input field -->
+            <div id="oldPasswordDiv" class="hidden">
+                <label for="oldPassword" id="oldPasswordLabel">Old Password:</label>
+                <input type="password" id="oldPassword" name="oldPassword">
+            </div>
+
+            <!-- New Password input field -->
+            <div id="newPasswordDiv" class="hidden">
+                <label for="newPassword" id="newPasswordLabel">New Password:</label>
+                <input type="password" id="newPassword" name="newPassword">
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit">Save Changes</button>
+        </form>
+    </div>
+    <script>
+        // Show or hide input fields based on checkbox selection
+        document.getElementById('changeUsername').addEventListener('change', function() {
+            document.getElementById('oldUsernameDiv').classList.toggle('hidden', !this.checked);
+            document.getElementById('newUsernameDiv').classList.toggle('hidden', !this.checked);
+        });
+
+        document.getElementById('changeEmail').addEventListener('change', function() {
+            document.getElementById('oldEmailDiv').classList.toggle('hidden', !this.checked);
+            document.getElementById('newEmailDiv').classList.toggle('hidden', !this.checked);
+        });
+
+        document.getElementById('changePassword').addEventListener('change', function() {
+            document.getElementById('oldPasswordDiv').classList.toggle('hidden', !this.checked);
+            document.getElementById('newPasswordDiv').classList.toggle('hidden', !this.checked);
+        });
+
+        // Add event listener for form submission
+        document.getElementById('profileForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent default form submission
+
+            // Get values from input fields
+            const oldUsername = document.getElementById('oldUsername').value;
+            const newUsername = document.getElementById('newUsername').value;
+            const oldEmail = document.getElementById('oldEmail').value;
+            const newEmail = document.getElementById('newEmail').value;
+            const oldPassword = document.getElementById('oldPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+
+            let errorMessages = []; // Array to hold error messages
+
+            // Validate old and new username if the checkbox is checked
+            if (document.getElementById('changeUsername').checked) {
+                if (oldUsername.length < 3) {
+                    errorMessages.push('Old Username must be at least 3 characters long.');
+                }
+                if (newUsername.length < 3) {
+                    errorMessages.push('New Username must be at least 3 characters long.');
+                }
+            }
+
+            // Validate old and new email using regex pattern if the checkbox is checked
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (document.getElementById('changeEmail').checked) {
+                if (!emailPattern.test(oldEmail)) {
+                    errorMessages.push('Please enter a valid old email address.');
+                }
+                if (!emailPattern.test(newEmail)) {
+                    errorMessages.push('Please enter a valid new email address.');
+                }
+            }
+
+            // Validate old and new password if the checkbox is checked
+            if (document.getElementById('changePassword').checked) {
+                if (oldPassword.length < 6) {
+                    errorMessages.push('Old Password must be at least 6 characters long.');
+                }
+                if (newPassword.length < 6) {
+                    errorMessages.push('New Password must be at least 6 characters long.');
+                }
+            }
+
+            // Get the error container div
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = ''; // Clear previous error messages
+
+            // If there are validation errors, display them
+            if (errorMessages.length > 0) {
+                errorContainer.innerHTML = errorMessages.join('<br>');
+            } else {
+                // Confirm changes with the user
+                const confirmChanges = confirm('Are you sure you want to save these changes?');
+                if (confirmChanges) {
+                    // If no errors and user confirms, create user data object and log it
+                    const userData = {
+                        oldUsername: oldUsername,
+                        newUsername: newUsername,
+                        oldEmail: oldEmail,
+                        newEmail: newEmail,
+                        oldPassword: oldPassword,
+                        newPassword: newPassword
+                    };
+
+                    console.log('User Data:', userData);
+                    alert('Profile updated successfully!'); // Show success message
+                }
+            }
+        });
+    </script>
+</body>
+</html>
