@@ -1,0 +1,251 @@
+<!--Anshul Reddyreddy -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Content</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Menu Bar Styles */
+        .menu-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            position: relative;
+        }
+        .menu-bar h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+        }
+        .menu-bar a {
+            color: white;
+            text-decoration: none;
+        }
+        .profile-button {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+        }
+        .profile-button img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        .dropdown {
+            display: none;
+            position: absolute;
+            top: 70px;
+            right: 20px;
+            background-color: white;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .dropdown a {
+            display: block;
+            padding: 10px 15px;
+            color: #333;
+            text-decoration: none;
+        }
+        .dropdown a:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* Content Container Styles */
+        .content-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: calc(100vh - 80px); /* Adjust for menu bar height */
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .report-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        label {
+            font-weight: bold;
+        }
+
+        select, textarea {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .cancel-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Menu Bar -->
+    <div class="menu-bar">
+        <a href="{{ url_for('home') }}"><h1>Flash Feed</h1></a>
+        <button class="profile-button" onclick="toggleDropdown()">
+            <img src="{{ url_for('static', filename='images/profile_icon.png') }}" alt="Profile Icon">
+        </button>
+    
+        <div class="dropdown" id="dropdown-menu">
+            <a href="{{ url_for('login') }}">Login</a>
+            <a href="{{ url_for('history') }}">Manage History</a>
+            <a href="{{ url_for('report') }}">Report Content</a>
+            <a href="{{ url_for('settings') }}">Settings</a>
+        </div>
+    </div>
+    
+
+    <!-- Content Container -->
+    <div class="content-wrapper">
+        <div class="container">
+            <h2>Report Inappropriate Content</h2>
+            <form id="reportForm" class="report-form">
+                <div class="form-group">
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" required>
+                        <option value="">Select a category</option>
+                        <option value="spam">Spam</option>
+                        <option value="harassment">Harassment</option>
+                        <option value="misinformation">Misinformation</option>
+                        <option value="violence">Violence</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="details">Additional Details:</label>
+                    <textarea id="details" name="details" rows="4" placeholder="Please provide more details about your report..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="cancel-btn" onclick="closeReportForm()">Cancel</button>
+                    <button type="submit" class="submit-btn">Submit Report</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Toggle dropdown menu
+        function toggleDropdown() {
+            const dropdown = document.getElementById('dropdown-menu');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        // Close dropdown when clicking outside
+        window.addEventListener('click', function(event) {
+            if (!event.target.matches('.profile-button') && !event.target.matches('.profile-button img')) {
+                const dropdown = document.getElementById('dropdown-menu');
+                if (dropdown.style.display === 'block') {
+                    dropdown.style.display = 'none';
+                }
+            }
+        });
+
+        // Form submission handling
+        document.getElementById('reportForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const category = document.getElementById('category').value;
+            const details = document.getElementById('details').value;
+            
+            try {
+                const response = await submitReport({
+                    category,
+                    details,
+                    contentId: getContentIdFromUrl(),
+                    timestamp: new Date().toISOString()
+                });
+                
+                if (response.success) {
+                    alert('Report submitted successfully');
+                    window.location.href = "{{ url_for('history') }}"; // Redirect to history page after submission
+                }
+            } catch (error) {
+                console.error('Report Submitted:', error);
+                alert('Report Successfully Sumbitted');
+            }
+        });
+
+        function closeReportForm() {
+            window.location.href = "{{ url_for('history') }}"; // Redirect to history page on cancel
+        }
+
+        function getContentIdFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('contentId');
+        }
+
+        async function submitReport(reportData) {
+            const response = await fetch('http://localhost:5000/api/reports', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-Id': 'test-user' // For testing purposes
+                },
+                body: JSON.stringify(reportData)
+            });
+            
+            return response.json();
+        }
+    </script>
+</body>
+</html>
+

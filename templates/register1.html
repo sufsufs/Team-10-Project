@@ -1,0 +1,203 @@
+<!-- Yousuf Ismail (YXI220002)-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Feed - Sign Up</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .menu-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            position: relative;
+        }
+        .menu-bar h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+        }
+        .menu-bar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .login-container {
+            width: 300px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        header h1 {
+            color: black;
+            margin: 0;
+            font-size: 1.5em;
+        }
+        header p {
+            font-size: 0.9em;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .links a {
+            display: inline-block;
+            margin: 10px 5px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        /* Error message styling */
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="{{ url_for('home') }}"><h1>Flash Feed</h1></a>
+    </div>
+    <div class="login-container">
+        <header>
+            <h1>Sign Up</h1>
+        </header>
+        <div class="error-message" id="error-message"></div>
+        <form id="registerForm2">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <input type="Password" id="password" placeholder="Password" required>
+            </div>
+            
+            <button type="submit">Continue</button>
+        </form>
+    </div>
+
+
+    <script>
+        document.getElementById('username').addEventListener('input', function() {
+            const username = this.value;
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.innerHTML = ''; // Clear previous errors
+        
+            // Dynamic check for username availability
+            if (localStorage.getItem('username') === username) {
+                errorMessage.innerHTML = 'This username is already in use. Please use another username.';
+                document.getElementById('registerForm2').setAttribute('data-invalid', 'true'); // Flag form as invalid
+            } else {
+                document.getElementById('registerForm2').removeAttribute('data-invalid'); // Remove invalid flag if username is valid
+                if (username.length < 4 || username.length > 20) {
+                    errorMessage.innerHTML += 'Username must be between 4 and 20 characters long.<br>';
+                }
+            }
+        });
+        
+        document.getElementById('password').addEventListener('input', function() {
+            const password = this.value;
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.innerHTML = ''; // Clear previous errors
+            if (password.length < 8) {
+                errorMessage.innerHTML += 'Password must be at least 8 characters long.<br>';
+            }
+            if (!/[A-Z]/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one uppercase letter.<br>';
+            }
+            if (!/\d/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one number.<br>';
+            }
+            if (!/[\W_]/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one special character.<br>';
+            }
+        });
+        
+        document.getElementById('registerForm2').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent the form from submitting normally
+        
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMessage = document.getElementById('error-message');
+            let errors = false;
+        
+            // Check if the form is flagged as invalid due to username issues
+            if (this.getAttribute('data-invalid')) {
+                errors = true;
+            }
+        
+            // Validate username
+            if (username.length < 4 || username.length > 20) {
+                errorMessage.innerHTML += 'Username must be between 4 and 20 characters long.<br>';
+                errors = true;
+            }
+        
+            // Validate password
+            if (password.length < 8) {
+                errorMessage.innerHTML += 'Password must be at least 8 characters long.<br>';
+                errors = true;
+            }
+            if (!/[A-Z]/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one uppercase letter.<br>';
+                errors = true;
+            }
+            if (!/\d/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one number.<br>';
+                errors = true;
+            }
+            if (!/[\W_]/.test(password)) {
+                errorMessage.innerHTML += 'Password must contain at least one special character.<br>';
+                errors = true;
+            }
+        
+            // If no errors, proceed
+            if (!errors) {
+                localStorage.setItem('username', username);
+                localStorage.setItem('password', password);
+                localStorage.setItem('isLoggedIn', 'true'); // Optionally set the user as logged in
+                alert('Registration complete! Welcome, ' + username + '!');
+                window.location.href = "{{ url_for('home') }}"; // Redirect 
+            }
+        });
+        </script>
+        
+        
+    
+</body>
+</html>

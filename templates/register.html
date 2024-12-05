@@ -1,0 +1,139 @@
+<!-- Yousuf Ismail (YXI220002)-->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Feed - Sign Up</title>
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        .menu-bar {
+            background-color: #2c3e50;
+            color: white;
+            padding: 10px 0;
+            text-align: center;
+            position: relative;
+        }
+        .menu-bar h1 {
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+        }
+        .menu-bar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .login-container {
+            width: 300px;
+            margin: auto;
+            padding: 20px;
+            background: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        header h1 {
+            color: black;
+            margin: 0;
+            font-size: 1.5em;
+        }
+        header p {
+            font-size: 0.9em;
+            color: #000000;
+            margin-bottom: 20px;
+        }
+        .input-group {
+            margin-bottom: 20px;
+        }
+        input[type="email"] {
+            width: 95%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            background-color: #007BFF;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .links a {
+            display: block;
+            color: #007BFF;
+            text-decoration: none;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu-bar">
+        <a href="{{ url_for('home') }}"><h1>Flash Feed</h1></a>
+    </div>
+    <div class="login-container">
+        <header>
+            <h1>Sign Up</h1>
+        <div class="error-message" id="error-message"></div>
+        <form id="registerForm">
+            <div class="input-group">
+                <input type="email" id="email" placeholder="Email*" required>
+            </div>
+            <div class="links">
+                <a href="{{ url_for('login') }}">Already a Flash Feed user? Log In</a>
+            </div>
+            <button type="submit">Continue</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Prevent form from submitting normally
+        
+            const email = document.getElementById('email').value;
+            const errorMessage = document.getElementById('error-message');
+        
+            // Clear previous error messages
+            errorMessage.textContent = '';
+        
+            // Simple email validation regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorMessage.textContent = 'Please enter a valid email address.';
+            } else {
+                // Check if the email is already in use
+                if (localStorage.getItem('email') === email) {
+                    errorMessage.textContent = 'This email is already in use. Please use another email.';
+                } else {
+                    localStorage.setItem('email', email); // Store email in localStorage if not already used
+                    alert('Email verified! Please continue to set up your username and password.');
+                    window.location.href = "{{ url_for('register1') }}"; // Redirect to the next registration step
+                }
+            }
+        });
+        </script>
+        
+</body>
+</html>
